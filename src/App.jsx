@@ -14,7 +14,7 @@ const PHASES = {
   REVEAL: 'reveal',
 }
 
-const TARGET_DATE = new Date('February 13, 2026 22:45:00').getTime()
+const TARGET_DATE = new Date('February 14, 2026 00:00:00').getTime()
 
 function App() {
   const [phase, setPhase] = useState(() => {
