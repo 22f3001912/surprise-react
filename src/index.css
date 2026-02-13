@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@400;700&display=swap');
+
+:root {
+  --primary-color: #ff4d6d;
+  --secondary-color: #ff8fa3;
+  --accent-color: #c9184a;
+  --bg-gradient-start: #ffdde1;
+  --bg-gradient-end: #ee9ca7;
+  --text-color: #590d22;
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --gold: #ffd700;
+  --font-primary: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  --font-cursive: 'Great Vibes', 'Segoe Script', cursive;
+  --font-display: 'Dancing Script', 'Segoe Script', cursive;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  overflow: hidden;
+  position: relative;
+  color: var(--text-color);
+}
