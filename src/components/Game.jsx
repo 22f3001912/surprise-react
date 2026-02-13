@@ -4,6 +4,25 @@ const GAME_DURATION = 30
 const TARGET_SCORE = 15
 const HEART_EMOJIS = ['❤️', '💖', '💗', '💕', '💓', '🩷', '💘']
 const DECOY_EMOJIS = ['💔', '🖤', '🩶']
+const POWER_UP_EMOJI = '⭐'
+
+const MILESTONE_MESSAGES = [
+    { score: 3, text: "You're doing great babe! 🥰" },
+    { score: 6, text: "So good at catching love! 💪💕" },
+    { score: 9, text: "Almost halfway there! 🔥" },
+    { score: 12, text: "You're unstoppable! 😍" },
+    { score: 14, text: "One more! You got this! 🎯💖" },
+]
+
+const ENCOURAGEMENTS = [
+    "Nice catch! 💖",
+    "Love it! 😍",
+    "Amazing! ✨",
+    "You're a natural! 🌟",
+    "Keep going! 💕",
+    "So sweet! 🍬",
+    "Perfect! 👏",
+]
 
 let nextId = 0
 
@@ -13,12 +32,26 @@ export default function Game({ onWin }) {
     const [items, setItems] = useState([])
     const [popups, setPopups] = useState([])
     const [gameOver, setGameOver] = useState(false)
+    const [milestoneMsg, setMilestoneMsg] = useState(null)
+    const [screenFlash, setScreenFlash] = useState(null)
     const arenaRef = useRef(null)
     const gameActiveRef = useRef(true)
     const scoreRef = useRef(0)
+    const shownMilestones = useRef(new Set())
 
-    // Keep scoreRef in sync
     useEffect(() => { scoreRef.current = score }, [score])
+
+    // Check milestones
+    useEffect(() => {
+        const milestone = MILESTONE_MESSAGES.find(
+            m => m.score === score && !shownMilestones.current.has(m.score)
+        )
+        if (milestone) {
+            shownMilestones.current.add(milestone.score)
+            setMilestoneMsg(milestone.text)
+            setTimeout(() => setMilestoneMsg(null), 2000)
+        }
+    }, [score])
 
     // Game timer
     useEffect(() => {
@@ -44,10 +77,19 @@ export default function Game({ onWin }) {
         if (gameOver) return
         const interval = setInterval(() => {
             if (!gameActiveRef.current) return
-            const isHeart = Math.random() > 0.25
-            const emoji = isHeart
-                ? HEART_EMOJIS[Math.floor(Math.random() * HEART_EMOJIS.length)]
-                : DECOY_EMOJIS[Math.floor(Math.random() * DECOY_EMOJIS.length)]
+            const rand = Math.random()
+            // 10% power-up, 65% heart, 25% decoy
+            let emoji, type
+            if (rand < 0.10) {
+                emoji = POWER_UP_EMOJI
+                type = 'powerup'
+            } else if (rand < 0.75) {
+                emoji = HEART_EMOJIS[Math.floor(Math.random() * HEART_EMOJIS.length)]
+                type = 'heart'
+            } else {
+                emoji = DECOY_EMOJIS[Math.floor(Math.random() * DECOY_EMOJIS.length)]
+                type = 'decoy'
+            }
 
             const arenaWidth = arenaRef.current?.clientWidth || 400
             const left = Math.random() * (arenaWidth - 50)
@@ -55,7 +97,7 @@ export default function Game({ onWin }) {
             setItems(prev => [...prev, {
                 id: nextId++,
                 emoji,
-                isHeart,
+                type,
                 left,
                 createdAt: Date.now(),
             }])
@@ -84,11 +126,14 @@ export default function Game({ onWin }) {
 
         const rect = e.currentTarget.getBoundingClientRect()
         const arenaRect = arenaRef.current?.getBoundingClientRect() || { left: 0, top: 0 }
+        const popupPos = {
+            left: rect.left - arenaRect.left,
+            top: rect.top - arenaRect.top,
+        }
 
-        // Remove the clicked item
         setItems(prev => prev.filter(i => i.id !== item.id))
 
-        if (item.isHeart) {
+        if (item.type === 'heart') {
             setScore(prev => {
                 const newScore = prev + 1
                 if (newScore >= TARGET_SCORE) {
@@ -97,24 +142,46 @@ export default function Game({ onWin }) {
                 }
                 return newScore
             })
+            const msg = ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]
             setPopups(prev => [...prev, {
                 id: nextId++,
-                text: '+1 💖',
+                text: `+1 ${msg}`,
                 color: '#ffd700',
-                left: rect.left - arenaRect.left,
-                top: rect.top - arenaRect.top,
+                ...popupPos,
                 createdAt: Date.now(),
             }])
+            setScreenFlash('pink')
+            setTimeout(() => setScreenFlash(null), 200)
+        } else if (item.type === 'powerup') {
+            setScore(prev => {
+                const newScore = Math.min(prev + 3, TARGET_SCORE)
+                if (newScore >= TARGET_SCORE) {
+                    gameActiveRef.current = false
+                    setTimeout(() => onWin(), 600)
+                }
+                return newScore
+            })
+            setPopups(prev => [...prev, {
+                id: nextId++,
+                text: '+3 SUPER LOVE! ⭐✨',
+                color: '#ffd700',
+                ...popupPos,
+                createdAt: Date.now(),
+                isSuper: true,
+            }])
+            setScreenFlash('gold')
+            setTimeout(() => setScreenFlash(null), 300)
         } else {
             setScore(prev => Math.max(0, prev - 1))
             setPopups(prev => [...prev, {
                 id: nextId++,
-                text: '-1 💔',
+                text: '-1 Oops! 💔',
                 color: '#ff4444',
-                left: rect.left - arenaRect.left,
-                top: rect.top - arenaRect.top,
+                ...popupPos,
                 createdAt: Date.now(),
             }])
+            setScreenFlash('red')
+            setTimeout(() => setScreenFlash(null), 200)
         }
     }, [onWin])
 
@@ -124,18 +191,34 @@ export default function Game({ onWin }) {
         setItems([])
         setPopups([])
         setGameOver(false)
+        setMilestoneMsg(null)
         gameActiveRef.current = true
         scoreRef.current = 0
+        shownMilestones.current = new Set()
     }, [])
 
     const progress = Math.min((score / TARGET_SCORE) * 100, 100)
 
     return (
         <div className="game-section active">
+            {/* Screen flash effect */}
+            {screenFlash && (
+                <div className={`screen-flash screen-flash-${screenFlash}`} />
+            )}
+
+            {/* Milestone message */}
+            {milestoneMsg && (
+                <div className="milestone-message">
+                    {milestoneMsg}
+                </div>
+            )}
+
             <div className="game-header">
                 <div className="game-title-area">
                     <h2 className="game-title">Catch My Love</h2>
-                    <p className="game-instruction">Click the falling hearts to collect love!</p>
+                    <p className="game-instruction">
+                        💖 = +1 &nbsp; ⭐ = +3 &nbsp; 💔 = -1
+                    </p>
                 </div>
                 <div className="game-stats">
                     <div className="score-display">
@@ -143,7 +226,7 @@ export default function Game({ onWin }) {
                         <span>{score}</span>
                         <span className="score-total">/ {TARGET_SCORE}</span>
                     </div>
-                    <div className="timer-display">
+                    <div className={`timer-display ${timer <= 10 ? 'timer-warning' : ''}`}>
                         <span className="timer-icon">⏰</span>
                         <span>{timer}</span>s
                     </div>
@@ -163,7 +246,7 @@ export default function Game({ onWin }) {
                 {popups.map(popup => (
                     <div
                         key={popup.id}
-                        className="score-popup"
+                        className={`score-popup ${popup.isSuper ? 'super-popup' : ''}`}
                         style={{ left: popup.left, top: popup.top, color: popup.color }}
                     >
                         {popup.text}
@@ -172,9 +255,16 @@ export default function Game({ onWin }) {
 
                 {gameOver && (
                     <div className="game-over-screen">
-                        <h2 className="game-over-title">Almost there! 💕</h2>
-                        <p className="game-over-text">You collected {score} hearts! Try once more...</p>
-                        <button className="retry-btn" onClick={retryGame}>Try Again 💪</button>
+                        <div className="game-over-emoji">🥺💕</div>
+                        <h2 className="game-over-title">Almost there!</h2>
+                        <p className="game-over-text">
+                            You collected {score} hearts!
+                            <br />
+                            <span className="game-over-encourage">I know you can do it babe! 💪</span>
+                        </p>
+                        <button className="retry-btn" onClick={retryGame}>
+                            Try Again For Me? 🥹
+                        </button>
                     </div>
                 )}
             </div>
@@ -182,7 +272,6 @@ export default function Game({ onWin }) {
     )
 }
 
-// Falling item with animation using requestAnimationFrame
 function FallingItem({ item, arenaRef, onClick }) {
     const ref = useRef(null)
     const animRef = useRef(null)
@@ -192,7 +281,7 @@ function FallingItem({ item, arenaRef, onClick }) {
         const arena = arenaRef.current
         if (!el || !arena) return
 
-        const fallDuration = 3000 + Math.random() * 2000
+        const fallDuration = item.type === 'powerup' ? 2500 : 3000 + Math.random() * 2000
         const startTime = Date.now()
         const arenaHeight = arena.clientHeight
 
@@ -213,16 +302,15 @@ function FallingItem({ item, arenaRef, onClick }) {
         }
 
         animRef.current = requestAnimationFrame(animate)
+        return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
+    }, [arenaRef, item.type])
 
-        return () => {
-            if (animRef.current) cancelAnimationFrame(animRef.current)
-        }
-    }, [arenaRef])
+    const className = item.type === 'powerup' ? 'game-powerup' : item.type === 'heart' ? 'game-heart' : 'game-decoy'
 
     return (
         <div
             ref={ref}
-            className={item.isHeart ? 'game-heart' : 'game-decoy'}
+            className={className}
             style={{ left: item.left, top: -60, position: 'absolute' }}
             onClick={(e) => onClick(item, e)}
         >

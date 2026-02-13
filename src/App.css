@@ -721,7 +721,6 @@ h1 {
   }
 
   to {
-    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
@@ -733,6 +732,229 @@ h1 {
   opacity: 0;
   animation: revealSlide 1s ease-out 1.5s forwards;
   font-style: italic;
+}
+
+/* ============================================
+   ROMANTIC ADDITIONS
+   ============================================ */
+
+/* Floating Couple Emoji */
+.love-emoji-float {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: floatEmoji 3s ease-in-out infinite;
+  text-shadow: 0 5px 15px rgba(255, 77, 109, 0.3);
+}
+
+@keyframes floatEmoji {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Rotating Love Quotes */
+.love-quote {
+  margin-top: 2rem;
+  min-height: 1.5em;
+  font-family: var(--font-cursive);
+  font-size: 1.8rem;
+  color: #ff4d6d;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.love-quote.visible {
+  opacity: 1;
+}
+
+/* Game Power-ups */
+.game-powerup {
+  position: absolute;
+  font-size: 3rem;
+  cursor: pointer;
+  user-select: none;
+  z-index: 6;
+  filter: drop-shadow(0 0 15px gold);
+  animation: spinStar 2s linear infinite;
+}
+
+@keyframes spinStar {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Super Popup */
+.score-popup.super-popup {
+  font-size: 2rem;
+  font-weight: 800;
+  text-shadow: 0 0 20px gold;
+  z-index: 20;
+}
+
+/* Milestone Message */
+.milestone-message {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 215, 0, 0.2);
+  border: 2px solid gold;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  color: white;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  text-shadow: 0 0 10px rgba(255, 107, 129, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+@keyframes popIn {
+  0% {
+    transform: translateX(-50%) scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Screen Flash */
+.screen-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.3;
+}
+
+.screen-flash-pink {
+  background: radial-gradient(circle, #ff6b81, transparent);
+}
+
+.screen-flash-gold {
+  background: radial-gradient(circle, #ffd700, transparent);
+}
+
+.screen-flash-red {
+  background: radial-gradient(circle, #ff0000, transparent);
+}
+
+/* Game Over Encouragement */
+.game-over-emoji {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounceEmoji 2s infinite;
+}
+
+.game-over-encourage {
+  display: block;
+  margin-top: 0.5rem;
+  color: #ff8fa3;
+  font-weight: bold;
+}
+
+/* Typewriter Love Letter */
+.love-letter-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  width: 100%;
+}
+
+.paper {
+  background: #fffdf0;
+  padding: 3rem;
+  border-radius: 5px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 90%;
+  font-family: 'Courier New', monospace;
+  position: relative;
+  min-height: 400px;
+}
+
+.paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 30px;
+  height: 100%;
+  width: 2px;
+  background: rgba(255, 0, 0, 0.2);
+}
+
+.typewriter-line {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1rem;
+  min-height: 1.4rem;
+  white-space: pre-wrap;
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+  color: #333;
+  font-weight: bold;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Timer Warning */
+.timer-warning {
+  color: #ff4444 !important;
+  animation: pulse 0.5s infinite;
+  background: rgba(255, 0, 0, 0.1) !important;
+  border: 1px solid #ff4444 !important;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ============================================
@@ -839,6 +1061,13 @@ h1 {
   .sparkle-ring {
     width: 300px;
     height: 300px;
+  }
+
+  /* New Responsive Styles */
+  .milestone-message {
+    font-size: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    width: 80%;
   }
 }
 
@@ -1006,5 +1235,43 @@ h1 {
   .reveal-divider {
     width: 40px;
     margin: 0.8rem auto;
+  }
+
+  /* New Mobile Styles */
+  .love-emoji-float {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .love-quote {
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+  }
+
+  .milestone-message {
+    font-size: 1.2rem;
+    padding: 0.8rem 1.2rem;
+    width: 90%;
+    top: 15%;
+  }
+
+  .paper {
+    padding: 1.5rem;
+    min-height: 300px;
+  }
+
+  .paper::before {
+    left: 20px;
+  }
+
+  .typewriter-line {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .game-powerup {
+    font-size: 2.2rem;
+    min-width: 48px;
+    min-height: 48px;
   }
 }
